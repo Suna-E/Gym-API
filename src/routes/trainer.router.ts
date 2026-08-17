@@ -1,0 +1,7 @@
+"post           /signup"
+"post          /signin"
+"post c       /sessions/"
+"get r       /sessions/"
+"put u      /sessions/:sessionId"
+"delete d  /sessions/:sessionId"
+"get      /sessions/:sessionId/bookings"

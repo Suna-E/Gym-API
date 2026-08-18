@@ -1,10 +1,10 @@
 import mongoose, { Schema, model, Document } from "mongoose";
 
-export interface IUser extends Document {
+export interface IUser extends Document { //I is a naming convention for interface btw
   fullName: string;
   email: string;
   password: string;
-  role: 'Member' | 'Trainer';
+  role: 'member' | 'trainer';
 }
 
 const userSchema = new Schema<IUser>(
@@ -12,7 +12,7 @@ const userSchema = new Schema<IUser>(
     fullName: { 
       type: String, 
       required: true, 
-      trim: true 
+      trim: true // for whitespaces
     },
     email: { 
       type: String, 
@@ -27,8 +27,8 @@ const userSchema = new Schema<IUser>(
     },
     role: { 
       type: String, 
-      enum: ['Member', 'Trainer'], 
-      default: 'Member',
+      enum: ['member', 'trainer'], 
+      default: 'member',
       required: true 
     },
   },

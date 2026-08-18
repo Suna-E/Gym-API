@@ -1,0 +1,45 @@
+import type { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+
+// Extend the Express Request type to include user payload
+export interface AuthRequest extends Request {
+  user?: {
+    id: string;
+    role: string;
+  };
+}
+
+export const decjwt = (req: AuthRequest, res: Response, next: NextFunction): void => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    res.status(401).json({ message: 'Not authorized, no token provided' });
+    return;
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string; role: string };
+    req.user = decoded;
+    next();
+  } catch (error) {
+    res.status(401).json({ message: 'Not authorized, invalid or expired token' });
+  }
+};
+
+export const requireRole = (allowedRole: string) => {
+  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      res.status(401).json({ message: 'Not authorized' });
+      return;
+    }
+
+    if (req.user.role !== allowedRole) {
+      res.status(403).json({ message: 'Forbidden: insufficient permissions' });
+      return;
+    }
+
+    next();
+  };
+};

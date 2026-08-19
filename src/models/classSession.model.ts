@@ -39,4 +39,4 @@ import mongoose from 'mongoose';
     }
   }
 )
-export const ClassSession = mongoose.model("ClassSession", classSessionSchema);
+export const classSession = mongoose.model("ClassSession", classSessionSchema);

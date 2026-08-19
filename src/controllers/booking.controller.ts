@@ -1,11 +1,14 @@
 import type  { Request , Response } from 'express';
 import {Booking} from "../models/booking.model";
-import {ClassSession} from "../models/classSession.model";
+import {classSession} from "../models/classSession.model";
 
-"post /sessions/:sessionId/book" // member only
+
 const bookSession = async (req:Request, res:Response) => {
     try {
-        const session = await ClassSession.findById(req.params.sessionId);
+        const sessionId = req.params.sessionId as string;
+        const userId = req.user?.id as string;
+
+        const session = await classSession.findById(sessionId);
         if(!session)
         {
             return res.status(404).json( "The session was not found");
@@ -17,8 +20,9 @@ const bookSession = async (req:Request, res:Response) => {
         }
 
         const existingBooking = await Booking.findOne(
-            {Member: req.user.id as string,
-             Session: req.params.sessionId as string}
+            {Member: userId,
+             Session: sessionId,
+             Status: "booked"}
         );
 
         if(existingBooking)
@@ -35,11 +39,12 @@ const bookSession = async (req:Request, res:Response) => {
         }
 
         const newBooking = await Booking.create({
-            Session: req.params.sessionId as string,
-            Member: req.user.id,
+            Session: sessionId,
+            Member: userId,
             Status: "booked"});
         
-        return res.status(201).json({message: "Successfully booked session",
+        return res.status(201).json(
+            {message: "Successfully booked session",
             booking:newBooking});
 
     } catch (err) {
@@ -47,11 +52,11 @@ const bookSession = async (req:Request, res:Response) => {
     }
 };
 
-"get /myBookings" // member only
 const getMemberBookings = async (req:Request, res:Response) => {
     try {
-        const bookings = await Booking.find({Member: params.user.id}).populate("Session");
-        if(!bookings){
+        const userId = req.user?.id as string;
+        const bookings = await Booking.find({Member: userId}).populate("Session");
+        if(bookings.length === 0){
             return res.status(404).json("No bookings");
         }
         return res.status(200).json(bookings);
@@ -60,26 +65,13 @@ const getMemberBookings = async (req:Request, res:Response) => {
     }
 };
 
-"get /bookings" // member only
-const getBookings = async (req:Request, res:Response) => {
-    try {     
-        const sessions = await classSession.find({ timeSlot: { $gt: new Date() } });
-        
-        if(sessions.length === 0){
-            return res.status(404).json("No sessions available");
-        }
-        return res.status(200).json(sessions);
-    } catch (err) {
-        return res.status(500).json({error : "Error in the server: ", err});
-    }
-};
 
-
-
-"patch /bookings/:bookingId" // member only
 const cancelBooking = async (req:Request, res:Response) => {
     try {
-        const booking = await Booking.findById(req.params.bookingId).populate("Session");
+        const bookingId = req.params.bookingId as string;
+        const userId = req.user?.id as string; 
+
+        const booking = await Booking.findById(bookingId).populate("Session");
         if(!booking)
         {
             return res.status(404).json({message: "This booking is not found!"});
@@ -89,7 +81,11 @@ const cancelBooking = async (req:Request, res:Response) => {
         {
             return res.status(400).json({message: "Can't cancel this booking that has already started or finished"});
         }
-        
+
+        if (booking.Member.toString() !== userId) {
+            return res.status(403).json({ message: "Unauthorized: You can only cancel your own bookings" });
+        }
+
         booking.Status = "cancelled";
         await booking.save();
 
@@ -101,7 +97,7 @@ const cancelBooking = async (req:Request, res:Response) => {
 };
 
 export {
-    getBookings,
+    getMemberBookings,
     bookSession,
     cancelBooking
 };

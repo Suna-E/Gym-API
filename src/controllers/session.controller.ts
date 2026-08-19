@@ -1,5 +1,5 @@
 import type  { Request , Response } from 'express';
-import { ClassSession } from '../models/classSession.model';
+import { classSession } from '../models/classSession.model';
 import { Booking } from '../models/booking.model'; //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 

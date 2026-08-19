@@ -1,29 +1,23 @@
-import mongoose, { Schema, model, Document } from "mongoose";
+import mongoose from "mongoose";
 
-export interface IUser extends Document { //I is a naming convention for interface btw
-  fullName: string;
-  email: string;
-  password: string;
-  role: 'member' | 'trainer';
-}
-
-const userSchema = new Schema<IUser>(
+const userSchema = new mongoose.Schema(
   {
     fullName: { 
       type: String, 
       required: true, 
-      trim: true // for whitespaces
+      trim: true
     },
     email: { 
       type: String, 
       required: true, 
       unique: true, 
-      lowercase: true 
+      lowercase: true,
+      trim: true
     },
     password: { 
       type: String, 
       required: true, 
-      select: false // Excludes password from query results by default
+      trim: true
     },
     role: { 
       type: String, 
@@ -31,10 +25,6 @@ const userSchema = new Schema<IUser>(
       default: 'member',
       required: true 
     },
-  },
-  { 
-    timestamps: true 
   }
 );
-
-export const User = model<IUser>("User", userSchema);
+export const User = mongoose.model("User", userSchema);

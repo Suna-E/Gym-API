@@ -1,18 +1,10 @@
-import {Schema , model, Document, Types } from 'mongoose';
-export interface IClassSession extends Document {
-    className: string;
-    instructor: string;
-    startTime: Date;
-    endTime: Date;
-    capacity: number;
-    attendees: string[];
-    isDeleted: boolean;
-}
-const classSessionSchema = new Schema<IClassSession>(
+import mongoose from 'mongoose';
+
+  const classSessionSchema = new mongoose.Schema(
   {
     className: { 
       type: String, 
-      required: [true, 'Class name is required'], 
+      required: true, 
       trim: true 
     },
     instructor: { 
@@ -22,26 +14,21 @@ const classSessionSchema = new Schema<IClassSession>(
     },
     startTime: { 
       type: Date, 
-      required: [true, 'Start time is required'] 
+      required: true
     },
     endTime: { 
       type: Date, 
-      required: [true, 'End time is required'] 
+      required: true
     },
     capacity: { 
       type: Number, 
-      required: [true, 'Capacity is required'], 
-      min: [1, 'Capacity must be at least 1'] 
+      required: true, 
+      min: 1 
     },
     attendees: { 
         type: [String],
         default: [] 
-    },
-    isDeleted: { 
-        type: Boolean, 
-        default: false 
     }
-  },
-  { timestamps: true } 
+  }
 )
-export const ClassSession = model<IClassSession>('ClassSession', classSessionSchema);
+export const ClassSession = mongoose.model("ClassSession", classSessionSchema);

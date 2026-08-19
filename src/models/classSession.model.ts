@@ -30,11 +30,12 @@ import mongoose from 'mongoose';
       endTime: { 
         type: Date, 
         required: true,
+        /*redundant
         validate: {
           validator: function (EndTimeVal: Date): boolean {
             return EndTimeVal > this.timeSlot.startTime;
           }
-        }
+        }*/
       }
     }
   }

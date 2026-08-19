@@ -14,7 +14,7 @@ const bookSession = async (req:Request, res:Response) => {
             return res.status(404).json( "The session was not found");
         }
 
-        if(new Date() >= session.timeSlot)
+        if(new Date() >= session.startTime)
         {
             return res.status(400).json({message: "Can't book this booking that has already started or finished"});
         }
@@ -70,14 +70,13 @@ const cancelBooking = async (req:Request, res:Response) => {
     try {
         const bookingId = req.params.bookingId as string;
         const userId = req.user?.id as string; 
-
         const booking = await Booking.findById(bookingId).populate("Session");
         if(!booking)
         {
             return res.status(404).json({message: "This booking is not found!"});
         }
-        
-        if(new Date() >= booking.Session.timeSlot)
+        const session = booking.Session as any; //bypass ts safety checker to allow the use of session.startTime
+        if(new Date() >= new Date(session.startTime)) //probable future bug, keep an eye out
         {
             return res.status(400).json({message: "Can't cancel this booking that has already started or finished"});
         }

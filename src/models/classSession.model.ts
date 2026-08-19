@@ -22,6 +22,10 @@ import mongoose from 'mongoose';
       required: true, 
       min: 1 
     },
+    startTime: { 
+        type: Date, 
+        required: true
+      }/*
     timeSlot: {
       startTime: { 
         type: Date, 
@@ -30,14 +34,8 @@ import mongoose from 'mongoose';
       endTime: { 
         type: Date, 
         required: true,
-        /*redundant
-        validate: {
-          validator: function (EndTimeVal: Date): boolean {
-            return EndTimeVal > this.timeSlot.startTime;
-          }
-        }*/
       }
-    }
+    }*/
   }
 )
 export const classSession = mongoose.model("ClassSession", classSessionSchema);

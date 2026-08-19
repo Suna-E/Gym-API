@@ -1,10 +1,11 @@
-import {Request, Response} from "express";
+import type  { Request , Response } from 'express';
 import {Booking} from "../models/booking.model";
+import {ClassSession} from "../models/classSession.model";
 
 "post /sessions/:sessionId/book" // member only
 const bookSession = async (req:Request, res:Response) => {
     try {
-        const session = await classSession.findById(req.params.sessionId);
+        const session = await ClassSession.findById(req.params.sessionId);
         if(!session)
         {
             return res.status(404).json( "The session was not found");

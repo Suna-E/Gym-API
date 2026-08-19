@@ -7,17 +7,14 @@ import mongoose from 'mongoose';
       required: true, 
       trim: true 
     },
-    instructor: { 
-      type: String , 
-      ref: 'User', 
-      required: true 
-    },
-    startTime: { 
-      type: Date, 
+    Member:{
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "User",
       required: true
     },
-    endTime: { 
-      type: Date, 
+    trainer:{
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "User",
       required: true
     },
     capacity: { 
@@ -25,9 +22,20 @@ import mongoose from 'mongoose';
       required: true, 
       min: 1 
     },
-    attendees: { 
-        type: [String],
-        default: [] 
+    timeSlot: {
+      startTime: { 
+        type: Date, 
+        required: true
+      },
+      endTime: { 
+        type: Date, 
+        required: true,
+        validate: {
+          validator: function (EndTimeVal: Date): boolean {
+            return EndTimeVal > this.timeSlot.startTime;
+          }
+        }
+      }
     }
   }
 )

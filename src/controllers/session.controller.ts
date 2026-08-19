@@ -1,6 +1,6 @@
 import type  { Request , Response } from 'express';
-import { ClassSession } from '../models/classSession.model.js';
-import { Booking } from '../models/booking.model.js'; //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+import { ClassSession } from '../models/classSession.model';
+import { Booking } from '../models/booking.model'; //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -65,28 +65,24 @@ export const UpdateSession = async (req: Request, res: Response) => {
     const newEnd = endTime ? new Date(endTime) : session.endTime;
 
 
-if (newEnd <= newStart) {
-  return res.status(400).json({ message: 'End time must be after start time' });
-    } 
-  
+    if (newEnd <= newStart) {
+      return res.status(400).json({ message: 'End time must be after start time' });
+        } 
+      
 
-    if (capacity !== undefined && (!Number.isInteger(capacity) || capacity < session.attendees.length)) {
-      return res.status(400).json({ message: 'Capacity cannot be less than current attendees' });
-    }
+        if (capacity !== undefined && (!Number.isInteger(capacity) || capacity < session.attendees.length)) {
+          return res.status(400).json({ message: 'Capacity cannot be less than current attendees' });
+        }
 
-    if (className) session.className = className;
-    if (instructor) session.instructor = instructor;
-    if (startTime) session.startTime = startTime;
-    if (endTime) session.endTime = endTime;
-    if (capacity !== undefined) session.capacity = capacity;
+        if (className) session.className = className;
+        if (instructor) session.instructor = instructor;
+        if (startTime) session.startTime = startTime;
+        if (endTime) session.endTime = endTime;
+        if (capacity !== undefined) session.capacity = capacity;
 
-    await session.save();
-    res.status(200).json({ message: 'Session updated successfully', session });
+        await session.save();
+        res.status(200).json({ message: 'Session updated successfully', session });
   }
-  
-
-
-
   
   catch (error: any) {
       console.error(error); 
@@ -96,7 +92,7 @@ if (newEnd <= newStart) {
 
 
 
-
+/*
 export const DeleteSession = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -129,10 +125,11 @@ export const DeleteSession = async (req: Request, res: Response) => {
                    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////bonus point must be handled ا
     session.isDeleted = true;
     await session.save();
- 
+
     res.status(200).json({ message: 'Session deleted successfully' });
   } catch (error: any) {
     console.error(error);
     res.status(500).json({ message: 'SORRY! Something went wrong while deleting the session' });
   }
 };
+ */

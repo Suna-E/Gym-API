@@ -5,10 +5,10 @@
     "outDir": "./dist",
 
     /* Environment & Module Settings */
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "target": "ESNext",
-    "lib": ["ESNext"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "esnext",
+    "lib": ["esnext"],
     "types": ["node"],
 
     /* Source Maps & Declarations */

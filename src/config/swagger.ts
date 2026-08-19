@@ -13,7 +13,7 @@ const options = {
            url: `http://localhost:${process.env.PORT || 3000}`
         }] // or "/" (for the current API)
     },
-    apis: ["./routes/*.ts"]
+    apis: ["./src/**/*.ts"]
 };
 
 export const specs = swaggerJsdoc(options);

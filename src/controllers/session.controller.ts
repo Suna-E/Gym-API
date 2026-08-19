@@ -1,7 +1,6 @@
 import type  { Request , Response } from 'express';
 import { classSession } from '../models/classSession.model';
-import { Booking } from '../models/booking.model'; //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+import { Booking } from '../models/booking.model';
 
 
 export const CreateSession = async (req: Request, res: Response) => {
@@ -38,16 +37,15 @@ export const CreateSession = async (req: Request, res: Response) => {
 
 export const UpdateSession = async (req: Request, res: Response) => {
   try {
-    const { id} = req.params;
+    const id = req.params;
     const { className, trainer, startTime, capacity } = req.body;
-    const trainerId = (req as any).user.id;          //////////////////////////////////////////////////////////////////////////////////////////must be handled   
-
+    const trainerId = req.user?.id as string;
     const session = await classSession.findById(id);
 
 
     if (!session) {
       return res.status(404).json({ message: 'Session not found' });
-    }                                                                                           ////////////////////////////////////////////////////////////////////////////////////////
+    } 
      if (session.trainer.toString() !== trainerId.toString()) {
       return res.status(403).json({ message: 'You can only update your own sessions' });
     }
@@ -77,12 +75,10 @@ export const UpdateSession = async (req: Request, res: Response) => {
 };
 
 
-
-
 export const DeleteSession = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const trainerId = (req as any).user.id;
+    const id = req.params;
+    const trainerId = req.user?.id;
  
     if (!trainerId) {
       return res.status(400).json({ message: 'Unauthorized' });

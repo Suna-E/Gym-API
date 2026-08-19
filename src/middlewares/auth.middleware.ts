@@ -2,26 +2,31 @@ import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 // Extend the Express Request type to include user payload
-export interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    role: string;
-  };
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        role: string;
+      };
+    }
+  }
 }
 
-export const decjwt = (req: AuthRequest, res: Response, next: NextFunction): void => {
+export const verifyToken = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
     res.status(401).json({ message: 'Not authorized, no token provided' });
     return;
   }
-
-  const token = authHeader.split(' ')[1];
-
+  
+  const token = authHeader.split(' ')[1] as string;
+  const secret = process.env.JWT_SECRET as string;
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string; role: string };
-    req.user = decoded;
+    
+    const decoded = jwt.verify(token, secret);
+    req.user = decoded as { id: string; role: string };
     next();
   } catch (error) {
     res.status(401).json({ message: 'Not authorized, invalid or expired token' });
@@ -29,7 +34,7 @@ export const decjwt = (req: AuthRequest, res: Response, next: NextFunction): voi
 };
 
 export const requireRole = (allowedRole: string) => {
-  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       res.status(401).json({ message: 'Not authorized' });
       return;

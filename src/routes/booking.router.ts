@@ -58,7 +58,9 @@ bookingRouter.post('/sessions/:sessionId/book',verifyToken, requireRole("member"
  *         content: 
  *           application/json:
  *             schema:
- *               $ref: '#/components/Schema/Booking'
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Booking'
  *       401:
  *         description: Not authorized, invalid or expired token
  *       403:

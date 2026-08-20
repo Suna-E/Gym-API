@@ -13,15 +13,13 @@ declare global {
   }
 }
 
-export const verifyToken = (req: Request, res: Response, next: NextFunction): void => {
-  const authHeader = req.headers.authorization;
+export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+  const token = req.cookies?.token;
 
-  if (!authHeader) {
-    res.status(401).json({ message: 'Not authorized, no token provided' });
-    return;
+  if (!token) {
+    return res.status(401).json({ message: 'Not authorized, no token provided' });
   }
   
-  const token = authHeader.split(' ')[1] as string;
   const secret = process.env.JWT_SECRET as string;
   try {
     
@@ -29,22 +27,18 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction): vo
     req.user = decoded as { id: string; role: string };
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Not authorized, invalid or expired token' });
+    return res.status(401).json({ message: 'Not authorized, invalid or expired token' });
   }
 };
 
-export const requireRole = (allowedRole: string) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
+export const requireRole = (allowedRole: string) => (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
-      res.status(401).json({ message: 'Not authorized' });
-      return;
+      return res.status(401).json({ message: 'Not authorized' });
     }
 
     if (req.user.role !== allowedRole) {
-      res.status(403).json({ message: 'Forbidden: insufficient permissions' });
-      return;
+      return res.status(403).json({ message: 'Forbidden: insufficient permissions' });
     }
 
     next();
-  };
 };

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { registerUser, loginUser } from '../controllers/auth.controller.js';
+import { registerUser, loginUser } from '../controllers/auth.controller';
 
 const authRouter = Router();
 
@@ -55,8 +55,10 @@ authRouter.post('/register', registerUser);
  *             properties:
  *               email:
  *                 type: string
+ *                 example: "test@gmail.com"
  *               password:
- *                 type: string  
+ *                 type: string
+ *                 example: "12345678Aa!"
  *     responses:
  *       200:
  *         description: Successfully logged in

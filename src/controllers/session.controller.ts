@@ -7,84 +7,65 @@ export const CreateSession = async (req: Request, res: Response) => {
   try {
     const { className, trainer, capacity, startTime} = req.body;
 
-    const startDate = new Date(startTime);
-    if (isNaN(startDate.getTime())) {
-      return res.status(400).json({ message: 'Invalid start time format' });
-    }
-    if (!className || !trainer || !capacity || !startTime) { 
-      return res.status(400).json({ message: 'All fields are required!!!!' });
-    }
-    if (new Date(startTime) < new Date()) {
-      return res.status(400).json({ message: ' BE CAREFUL ! Start time must be in the future' });
-    }
-    if (!Number.isInteger(capacity) || capacity <= 0) {
-      return res.status(400).json({ message: 'Capacity must be a positive integer' });
-    }
-      const session = await classSession.create({
-        className,
-        trainer,
-        startTime,
-        capacity
-      });
-      res.status(201).json({ message: ' CONGRATULATIONS!!!  Your  Class session is succesfully created ', session });
+    const session = await classSession.create({
+      className,
+      trainer,
+      startTime,
+      capacity
+    });
+      res.status(201).json({ message: 'Your Class session is succesfully created', session });
     } 
       catch (error: any) {
-      res.status(500).json({ message: "SORRY! Something went wrong while creating the session: " });
+      res.status(500).json({ message: "Something went wrong while creating the session" });
     }
 };
 
-
-
 export const UpdateSession = async (req: Request, res: Response) => {
   try {
-    const id = req.params;
+    const sessionId = req.params.id;
     const { className, trainer, startTime, capacity } = req.body;
     const trainerId = req.user?.id as string;
-    const session = await classSession.findById(id);
-
+    
+    const session = await classSession.findById(sessionId);
 
     if (!session) {
       return res.status(404).json({ message: 'Session not found' });
     } 
-     if (session.trainer.toString() !== trainerId.toString()) {
-      return res.status(403).json({ message: 'You can only update your own sessions' });
-    }
- 
-    const newStart = startTime ? new Date(startTime) : session.startTime;
-
-
-    if (new Date() > newStart) {
-      return res.status(400).json({ message: 'setting a date in the past is not allowed' });
-    } 
-    if (capacity !== undefined && (!Number.isInteger(capacity) || capacity < session.capacity)) {
-      return res.status(400).json({ message: 'Capacity cannot be less than current attendees' });
+    if (session.trainer.toString() !== trainerId.toString()) {
+      return res.status(400).json({ message: 'You can only update your own sessions' });
     }
 
-        if (className) session.className = className;
-        if (trainer) session.trainer = trainer;
-        session.startTime = startTime;
-        session.capacity = capacity;
+    const activeBookingsCount = await Booking.countDocuments({
+        session: sessionId,
+        status: 'booked'
+    });
 
-        await session.save();
-        res.status(200).json({ message: 'Session updated successfully', session });
+    if (capacity !== undefined && capacity < activeBookingsCount) 
+    {
+      return res.status(400).json({ message: `Capacity cannot be less than current active bookings: ${activeBookingsCount}`})
+    };
+
+      if (className) session.className = className;
+      if (trainer) session.trainer = trainer;
+      if (startTime)session.startTime = new Date(startTime);
+      if (capacity !== undefined) session.capacity = capacity;
+
+      await session.save();
+      res.status(200).json({ message: 'Session updated successfully', session });
   }
   
   catch (error: any) {
-    res.status(500).json({ message: "SORRY! Something went wrong while updating the session: "  });
+    res.status(500).json({ message: "Something went wrong while updating the session" });
   }
 };
 
 
 export const DeleteSession = async (req: Request, res: Response) => {
   try {
-    const id = req.params;
-    const trainerId = req.user?.id;
+    const sessionId = req.params.id;
+    const trainerId = req.user?.id as string;
  
-    if (!trainerId) {
-      return res.status(400).json({ message: 'Unauthorized' });
-    }
- 
-    const session = await classSession.findById(id);
+    const session = await classSession.findById(sessionId);
     if (!session) {
       return res.status(404).json({ message: 'Class session not found' });
     }
@@ -93,19 +74,18 @@ export const DeleteSession = async (req: Request, res: Response) => {
     }
  
     const activeBookingsCount = await Booking.countDocuments({
-      session: id,
+      session: sessionId,
       status: 'booked',
     });
  
     if (activeBookingsCount > 0) {
-      return res.status(409).json({
+      return res.status(400).json({
         message: `Cannot delete session, it has ${activeBookingsCount} active booking(s)`,
       });
     }
     await session.deleteOne();
     res.status(200).json({ message: 'Session deleted successfully' });
   } catch (error: any) {
-    console.error(error);
-    res.status(500).json({ message: 'SORRY! Something went wrong while deleting the session' });
+    res.status(500).json({ message: 'Something went wrong while deleting the session' });
   }
 };

@@ -1,4 +1,4 @@
-import type { Request, Response, CookieOptions } from 'express';
+import type { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import validator from 'validator';
@@ -10,10 +10,6 @@ const generateToken = (id: string, role: string): string => {
     expiresIn: "1d",
   });
 };
-const COOKIE_OPTIONS: CookieOptions = {
-  httpOnly: true //XSS protection
-};
-
 export const registerUser = async (req: Request, res: Response) => {
   try {
     const { fullName, email, password, role } = req.body;
@@ -53,7 +49,7 @@ export const registerUser = async (req: Request, res: Response) => {
 
   
     const token = generateToken(user._id.toString(), user.role);
-
+    res.cookie('token', token, {httpOnly: true, maxAge : 60*60*1000});
     res.status(201).json({
       message: 'User registered successfully'/*,
       token,
@@ -90,7 +86,7 @@ export const loginUser = async (req: Request, res: Response) => {
 
 
     const token = generateToken(user._id.toString(), user.role);
-    res.cookie('token', token, COOKIE_OPTIONS);
+    res.cookie('token', token, {httpOnly: true, maxAge : 60*60*1000});
 
     return res.status(200).json({
       message: 'Logged in successfully',

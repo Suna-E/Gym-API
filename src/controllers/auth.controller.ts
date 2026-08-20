@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express';
+import type { Request, Response, CookieOptions } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import validator from 'validator';
@@ -7,10 +7,12 @@ import { User } from '../models/user.model';
 // Helper function to generate JWT token
 const generateToken = (id: string, role: string): string => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET as string, {
-    expiresIn: "1d", /*(process.env.JWT_EXPIRES_IN) as jwt.SignOptions['expiresIn']*/
+    expiresIn: "1d",
   });
 };
-
+const COOKIE_OPTIONS: CookieOptions = {
+  httpOnly: true //XSS protection
+};
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
@@ -76,8 +78,7 @@ export const loginUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Please provide email and password' });
     }
 
-    // Explicitly include the hidden password field with .select('+password')
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
@@ -89,10 +90,10 @@ export const loginUser = async (req: Request, res: Response) => {
 
 
     const token = generateToken(user._id.toString(), user.role);
+    res.cookie('token', token, COOKIE_OPTIONS);
 
-    res.status(200).json({
+    return res.status(200).json({
       message: 'Logged in successfully',
-      token,
       user: {
         id: user._id,
         fullName: user.fullName,

@@ -23,15 +23,23 @@ export const sessionRouter = Router();
  *     parameters:
  *       - in: query
  *         name: className
+ *         schema:
+ *           type: string
  *         description: search with a specific name
  *       - in: query
  *         name: day
+ *         schema:
+ *           type: date-time
  *         description: search with a specific day
  *       - in: query
  *         name: trainerName
+ *         schema:
+ *           type: string
  *         description: search with a specific trainer
  *       - in: query
  *         name: availability
+ *         schema:
+ *           type: boolean
  *         description: search for available classes only
  *     responses:
  *       200:
@@ -142,6 +150,13 @@ sessionRouter.post('/',verifyToken, requireRole("trainer"), validateCreateSessio
  *   patch:
  *     tags: [ClassSession]
  *     summary: update a class session that the trainer owns
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: the session's id to be updated
  *     requestBody:
  *       required: true
  *       content:

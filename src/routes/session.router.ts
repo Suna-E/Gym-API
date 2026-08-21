@@ -20,6 +20,19 @@ export const sessionRouter = Router();
  *   get:
  *     tags: [ClassSession]
  *     summary: get all sessions and also support search
+ *     parameters:
+ *       - in: query
+ *         name: className
+ *         description: search with a specific name
+ *       - in: query
+ *         name: day
+ *         description: search with a specific day
+ *       - in: query
+ *         name: trainerName
+ *         description: search with a specific trainer
+ *       - in: query
+ *         name: availability
+ *         description: search for available classes only
  *     responses:
  *       200:
  *         description: display all sessions

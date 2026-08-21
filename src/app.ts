@@ -18,8 +18,8 @@ connectDB();
 
 app.use('/api-docs', swaggerUi.serve, swaggerSpec.setup(specs));
 app.use('/auth', authRouter);
-app.use('/member', bookingRouter);
-app.use('/api/sessions', sessionRouter);
+app.use('/bookings', bookingRouter);
+app.use('/sessions', sessionRouter);
 app.get('/', (req, res) => {
   res.json({ message: 'Gym API is running' });
 });

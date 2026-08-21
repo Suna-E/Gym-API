@@ -10,7 +10,7 @@ import mongoose from 'mongoose';
  *       required:
  *         - className
  *         - trainer
- *         - timeSlot
+ *         - timeStart
  *         - capacity
  *       properties:
  *         className:
@@ -19,7 +19,7 @@ import mongoose from 'mongoose';
  *         trainer:
  *           type: string
  *           description: Member Id
- *         timeSlot:
+ *         timeStart:
  *           type: date-time
  *           description: class start date
  *         capacity:
@@ -28,7 +28,7 @@ import mongoose from 'mongoose';
  *       example:
  *         className: "yoga"
  *         trainer: "66c3b2f5e1a2c3b4a5d6e702"
- *         timeSlot: "2026-09-12T10:00"
+ *         timeStart: "2026-09-12T10:00:00:000Z"
  *         capacity: 20
  */
 const classSessionSchema = new mongoose.Schema(
@@ -51,17 +51,7 @@ const classSessionSchema = new mongoose.Schema(
     startTime: { 
         type: Date, 
         required: true
-      }/*
-    timeSlot: {
-      startTime: { 
-        type: Date, 
-        required: true
-      },
-      endTime: { 
-        type: Date, 
-        required: true,
       }
-    }*/
   }
 )
 export const classSession = mongoose.model("ClassSession", classSessionSchema);

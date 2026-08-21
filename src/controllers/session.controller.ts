@@ -5,8 +5,8 @@ import { Booking } from '../models/booking.model';
 
 export const CreateSession = async (req: Request, res: Response) => {
   try {
-    const { className, trainer, capacity, startTime} = req.body;
-
+    const { className, capacity, startTime} = req.body;
+    const trainer = req.user?.id;
     const session = await classSession.create({
       className,
       trainer,
@@ -23,7 +23,7 @@ export const CreateSession = async (req: Request, res: Response) => {
 export const UpdateSession = async (req: Request, res: Response) => {
   try {
     const sessionId = req.params.id;
-    const { className, trainer, startTime, capacity } = req.body;
+    const { className, startTime, capacity } = req.body;
     const trainerId = req.user?.id as string;
     
     const session = await classSession.findById(sessionId);
@@ -45,13 +45,12 @@ export const UpdateSession = async (req: Request, res: Response) => {
       return res.status(400).json({ message: `Capacity cannot be less than current active bookings: ${activeBookingsCount}`})
     };
 
-      if (className) session.className = className;
-      if (trainer) session.trainer = trainer;
-      if (startTime)session.startTime = new Date(startTime);
-      if (capacity !== undefined) session.capacity = capacity;
+    if (className) session.className = className;
+    if (startTime) session.startTime = new Date(startTime);
+    if (capacity !== undefined) session.capacity = capacity;
 
-      await session.save();
-      res.status(200).json({ message: 'Session updated successfully', session });
+    await session.save();
+    return res.status(200).json({ message: 'Session updated successfully', session });
   }
   
   catch (error: any) {
@@ -70,7 +69,7 @@ export const DeleteSession = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Class session not found' });
     }
     if (session.trainer.toString() !== trainerId.toString()) {
-      return res.status(400).json({ message: 'You can only delete your own sessions' });
+      return res.status(403).json({ message: 'You can only delete your own sessions' });
     }
  
     const activeBookingsCount = await Booking.countDocuments({
@@ -91,9 +90,29 @@ export const DeleteSession = async (req: Request, res: Response) => {
 };
 
 
+export const GetSessionBookings = async (req: Request, res: Response) => {
+  try {
+    const sessionId = req.params.id;
+    const trainerId = req.user?.id as string;
 
+    const session = await classSession.findOne({ _id: sessionId, trainer: trainerId });
 
+    if (!session) {
+      return res.status(404).json({ message: "Session not found or you are not authorized to view its bookings" });
+    }
 
+    const bookings = await Booking.find({ session: sessionId, status: 'booked' }).populate('Member', 'fullName email');
+
+    res.status(200).json({
+      totalBookings: bookings.length,
+      bookings
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
 
 export const GetAllSessions = async (req: Request, res: Response) => {
   try {
@@ -107,8 +126,8 @@ export const GetAllSessions = async (req: Request, res: Response) => {
     let filter: any = {};
 
     if (className) {
-  filter.className = className;
-}
+      filter.className = className;
+    }
 
     if (day) {
       let startDay = new Date(day as string);
@@ -120,7 +139,7 @@ export const GetAllSessions = async (req: Request, res: Response) => {
       filter.startTime = { $gte: startDay, $lte: endDay };
     }
 
-let sessions = await classSession.find(filter).populate('trainer', 'fullName email');
+    let sessions = await classSession.find(filter).populate('trainer', 'fullName email');
 
     if (trainerName) {
       let searchName = (trainerName as string).toLowerCase();

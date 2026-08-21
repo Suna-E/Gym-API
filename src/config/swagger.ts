@@ -10,7 +10,7 @@ const options = {
             description: "Simple Gym App."
         },
         servers : [{
-           url: `http://localhost:${process.env.PORT || 3000}`
+           url: `/`
         }] // or "/" (for the current API)
     },
     apis: ["./src/**/*.ts"]

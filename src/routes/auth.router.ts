@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { registerUser, loginUser } from '../controllers/auth.controller';
+import { registerUser, loginUser, logOut } from '../controllers/auth.controller';
+import { verifyToken } from '../middlewares/auth.middleware';
 
 const authRouter = Router();
 
@@ -70,9 +71,21 @@ authRouter.post('/register', registerUser);
  *         description: server error!
  */
 authRouter.post('/login', loginUser);
-/*member vs trainer privellages, pass requireRole('member') or requireRole('trainer')
-router.get();
-router.post();
-router.delete();*/
 
+
+/**
+ * @swagger
+ * /auth/logout:
+ *   post:
+ *     tags: [Auth]
+ *     summary: logging out user
+ *     responses: 
+ *       200:
+ *         description: Successfully logged out
+ *       401:
+ *         description: Not authorized, invalid or expired token
+ *       500:
+ *         description: server error!
+ */
+authRouter.post('/logout', verifyToken, logOut);
 export default authRouter;

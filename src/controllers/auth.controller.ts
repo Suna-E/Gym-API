@@ -51,15 +51,15 @@ export const registerUser = async (req: Request, res: Response) => {
     const token = generateToken(user._id.toString(), user.role);
     res.cookie('token', token, {httpOnly: true, maxAge : 60*60*1000});
     res.status(201).json({
-      message: 'User registered successfully'/*,
-      token,
+      message: 'User registered successfully',
       user: {
         id: user._id,
         fullName: user.fullName,
         email: user.email,
         role: user.role,
-      },*/
+      }
     });
+
   } catch (error) {
     res.status(500).json({ message: 'Server error during registration', error });
   }
@@ -100,4 +100,9 @@ export const loginUser = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({ message: 'Server error during login', error });
   }
+};
+
+export const logOut = (req:Request, res:Response) => {
+  res.clearCookie("token");
+  return res.status(200).json({msg:"Signed out Successfully"});
 };

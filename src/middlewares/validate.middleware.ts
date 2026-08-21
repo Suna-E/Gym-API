@@ -1,9 +1,9 @@
 import type { Request, Response, NextFunction } from 'express';
 
 export const validateCreateSession = (req: Request, res: Response, next: NextFunction) => {
-  const { className, trainer, capacity, startTime } = req.body;
+  const { className, capacity, startTime } = req.body;
 
-  if (!className || !trainer || capacity === undefined || !startTime) { 
+  if (!className || capacity === undefined || !startTime) { 
     return res.status(400).json({message: 'All fields are required!!!!'});
   }
 

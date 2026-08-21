@@ -14,7 +14,7 @@ export const bookingRouter = Router();
 
 /**
  * @swagger
- * /member/sessions/{sessionId}/book:
+ * /bookings/sessions/{sessionId}/book:
  *   post:
  *     tags: [Member]
  *     summary: books a session for the member
@@ -48,7 +48,7 @@ bookingRouter.post('/sessions/:sessionId/book',verifyToken, requireRole("member"
 
 /**
  * @swagger
- * /member/mybookings:
+ * /bookings/mybookings:
  *   get:
  *     tags: [Member]
  *     summary: gets the member's bookings
@@ -74,7 +74,7 @@ bookingRouter.get('/myBookings',verifyToken, requireRole("member"), getMemberBoo
 
 /**
  * @swagger
- * /member/bookings/{bookingId}:
+ * /bookings/{bookingId}:
  *   patch:
  *     tags: [Member]
  *     summary: cancelling an active booking
@@ -103,4 +103,4 @@ bookingRouter.get('/myBookings',verifyToken, requireRole("member"), getMemberBoo
  *       500:
  *         description: server error!
  */
-bookingRouter.patch('/bookings/:bookingId',verifyToken, requireRole("member"), cancelBooking); // member only
+bookingRouter.patch('/:bookingId',verifyToken, requireRole("member"), cancelBooking); // member only

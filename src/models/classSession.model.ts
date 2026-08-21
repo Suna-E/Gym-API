@@ -54,4 +54,4 @@ const classSessionSchema = new mongoose.Schema(
       }
   }
 )
-export const classSession = mongoose.model("ClassSession", classSessionSchema);
+export const classSession = mongoose.model("classSession", classSessionSchema);

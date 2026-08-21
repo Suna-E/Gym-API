@@ -2,7 +2,6 @@ import type  { Request , Response } from 'express';
 import {Booking} from "../models/booking.model";
 import {classSession} from "../models/classSession.model";
 
-
 const bookSession = async (req:Request, res:Response) => {
     try {
         const sessionId = req.params.sessionId as string;
@@ -56,6 +55,7 @@ const getMemberBookings = async (req:Request, res:Response) => {
     try {
         const userId = req.user?.id as string;
         const bookings = await Booking.find({Member: userId}).populate("Session");
+
         if(bookings.length === 0){
             return res.status(404).json("No bookings");
         }
@@ -75,14 +75,15 @@ const cancelBooking = async (req:Request, res:Response) => {
         {
             return res.status(404).json({message: "This booking is not found!"});
         }
+
+        if (booking.Member.toString() !== userId) {
+            return res.status(403).json({ message: "You can only cancel your own bookings" });
+        }
+
         const session = booking.Session as any; //bypass ts safety checker to allow the use of session.startTime
         if(new Date() >= new Date(session.startTime)) //probable future bug, keep an eye out
         {
             return res.status(400).json({message: "Can't cancel this booking that has already started or finished"});
-        }
-
-        if (booking.Member.toString() !== userId) {
-            return res.status(403).json({ message: "Unauthorized: You can only cancel your own bookings" });
         }
 
         booking.Status = "cancelled";

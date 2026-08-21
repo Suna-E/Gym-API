@@ -96,12 +96,12 @@ export const GetSessionBookings = async (req: Request, res: Response) => {
     const trainerId = req.user?.id as string;
 
     const session = await classSession.findOne({ _id: sessionId, trainer: trainerId });
-
+    
     if (!session) {
       return res.status(404).json({ message: "Session not found or you are not authorized to view its bookings" });
     }
 
-    const bookings = await Booking.find({ session: sessionId, status: 'booked' }).populate('Member', 'fullName email');
+    const bookings = await Booking.find({ Session: sessionId, Status: 'booked' }).populate('Member', 'fullName email');
 
     res.status(200).json({
       totalBookings: bookings.length,

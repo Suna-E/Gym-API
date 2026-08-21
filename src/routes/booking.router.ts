@@ -48,7 +48,7 @@ bookingRouter.post('/sessions/:sessionId/book',verifyToken, requireRole("member"
 
 /**
  * @swagger
- * /bookings/mybookings:
+ * /bookings/myBookings:
  *   get:
  *     tags: [Member]
  *     summary: gets the member's bookings

@@ -36,8 +36,8 @@ export const UpdateSession = async (req: Request, res: Response) => {
     }
 
     const activeBookingsCount = await Booking.countDocuments({
-        session: sessionId,
-        status: 'booked'
+        Session: sessionId,
+        Status: 'booked'
     });
 
     if (capacity !== undefined && capacity < activeBookingsCount) 
@@ -72,16 +72,20 @@ export const DeleteSession = async (req: Request, res: Response) => {
       return res.status(403).json({ message: 'You can only delete your own sessions' });
     }
  
-    const activeBookingsCount = await Booking.countDocuments({
-      session: sessionId,
-      status: 'booked',
-    });
- 
-    if (activeBookingsCount > 0) {
-      return res.status(400).json({
-        message: `Cannot delete session, it has ${activeBookingsCount} active booking(s)`,
-      });
-    }
+    if(new Date(session.startTime) > new Date()) // make sure the active bookings is in the future only
+      {
+        const activeBookingsCount = await Booking.countDocuments({
+        Session: sessionId,
+        Status: 'booked',
+        });
+        
+        if (activeBookingsCount > 0) {
+          return res.status(400).json({
+            message: `Cannot delete session, it has ${activeBookingsCount} active booking(s)`,
+          });
+        }
+      }
+      
     await session.deleteOne();
     res.status(200).json({ message: 'Session deleted successfully' });
   } catch (error: any) {
@@ -159,8 +163,8 @@ export const GetAllSessions = async (req: Request, res: Response) => {
         let currentSession: any = sessions[i];
 
         let bookedCount = await Booking.countDocuments({
-          session: currentSession._id,
-          status: 'booked',
+          Session: currentSession._id,
+          Status: 'booked',
         });
 
         let spotsRemaining = currentSession.capacity - bookedCount;

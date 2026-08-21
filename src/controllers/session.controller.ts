@@ -89,3 +89,76 @@ export const DeleteSession = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Something went wrong while deleting the session' });
   }
 };
+
+
+
+
+
+
+export const GetAllSessions = async (req: Request, res: Response) => {
+  try {
+    
+    let className = req.query.className;
+    let day = req.query.day;
+    let trainerName = req.query.trainer;
+    let availability = req.query.availability;
+
+    
+    let filter: any = {};
+
+    if (className) {
+  filter.className = className;
+}
+
+    if (day) {
+      let startDay = new Date(day as string);
+      startDay.setHours(0, 0, 0, 0);
+
+      let endDay = new Date(day as string);
+      endDay.setHours(23, 59, 59, 999);
+
+      filter.startTime = { $gte: startDay, $lte: endDay };
+    }
+
+let sessions = await classSession.find(filter).populate('trainer', 'fullName email');
+
+    if (trainerName) {
+      let searchName = (trainerName as string).toLowerCase();
+
+      sessions = sessions.filter((session: any) => {
+        let trainerFullName = session.trainer.fullName.toLowerCase();
+        return trainerFullName.includes(searchName);
+      });
+    }
+
+ 
+    if (availability === 'true') {
+      
+      let sessionsWithSpace = [];
+
+      for (let i = 0; i < sessions.length; i++) {
+        let currentSession: any = sessions[i];
+
+        let bookedCount = await Booking.countDocuments({
+          session: currentSession._id,
+          status: 'booked',
+        });
+
+        let spotsRemaining = currentSession.capacity - bookedCount;
+
+        if (spotsRemaining > 0) {
+          sessionsWithSpace.push(currentSession);
+        }
+      }
+
+      sessions = sessionsWithSpace;
+    }
+
+
+    res.status(200).json({ count: sessions.length, sessions: sessions });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Something went wrong while getting  sessions' });
+  }
+};

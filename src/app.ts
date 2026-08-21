@@ -7,7 +7,7 @@ import { specs } from "./config/swagger";
 import { connectDB } from './config/db';
 import  authRouter  from './routes/auth.router';
 import { bookingRouter } from "./routes/booking.router";
-
+import sessionRouter from './routes/session.router';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -19,7 +19,7 @@ connectDB();
 app.use('/api-docs', swaggerUi.serve, swaggerSpec.setup(specs));
 app.use('/auth', authRouter);
 app.use('/member', bookingRouter);
-
+app.use('/api/sessions', sessionRouter);
 app.get('/', (req, res) => {
   res.json({ message: 'Gym API is running' });
 });
